@@ -1,3 +1,4 @@
+const cors = require('cors');
 const express = require("express");
 const morgan = require("morgan");
 require('dotenv').config();
@@ -7,6 +8,12 @@ const app = express();
 
 // Show logs by console
 app.use(morgan('dev'));
+
+// CORS
+app.use( cors() );
+
+// Read body
+app.use( express.json() );
 
 app.use(paymentRoutes);
 

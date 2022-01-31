@@ -1,22 +1,24 @@
 const axios = require('axios');
 
 const createOrder = async(req, res) => {
+  const { currency_code, value, description } = req.body
   const order = {
       intent: "CAPTURE",
       purchase_units: [
         {
           amount: {
-            currency_code: "USD",
-            value: "105.70",
+            currency_code,
+            value,
           },
+          description
         },
       ],
       application_context: {
         brand_name: "mycompany.com",
         landing_page: "NO_PREFERENCE",
         user_action: "PAY_NOW",
-        return_url: `localhost:${process.env.PORT}/capture-order`,
-        cancel_url: `localhost:${process.env.PORT}/cancel-payment`,
+        return_url: `${process.env.HOST}/capture-order`,
+        cancel_url: `${process.env.HOST}/cancel-payment`,
       },
     };
 
@@ -40,7 +42,6 @@ const createOrder = async(req, res) => {
         },
       }
     );
-    console.log(access_token)
   
     const response = await axios.post(`${process.env.URL}/v2/checkout/orders`, order, {
       headers: {
@@ -54,12 +55,27 @@ const createOrder = async(req, res) => {
   }
 }
 
-const captureOrder = (req, res) => {
-    res.send('Captured order');
+const captureOrder = async(req, res) => {
+
+  const { token } = req.query;
+
+  const response = await axios.post(
+    `${process.env.URL}/v2/checkout/orders/${token}/capture`,
+    {},
+    {
+      auth: {
+        username: process.env.CLIENTID,
+          password: process.env.SECRET,
+      },
+    }
+  );
+
+  console.log(response.data);
+  res.send('Captured order');
 }
 
 const cancelOrder = (req, res) => {
-    res.send('Canceled order');
+  res.send('Canceled order');
 }
 module.exports = {
     createOrder,
