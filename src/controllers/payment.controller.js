@@ -1,34 +1,57 @@
 const axios = require('axios');
 
 const createOrder = async(req, res) => {
-    const order = {
-        intent: "CAPTURE",
-        purchase_units: [
-          {
-            amount: {
-              currency_code: "USD",
-              value: "105.70",
-            },
+  const order = {
+      intent: "CAPTURE",
+      purchase_units: [
+        {
+          amount: {
+            currency_code: "USD",
+            value: "105.70",
           },
-        ],
-        application_context: {
-          brand_name: "mycompany.com",
-          landing_page: "NO_PREFERENCE",
-          user_action: "PAY_NOW",
-          return_url: `localhost:${process.env.PORT}/capture-order`,
-          cancel_url: `localhost:${process.env.PORT}/cancel-payment`,
         },
-      };
+      ],
+      application_context: {
+        brand_name: "mycompany.com",
+        landing_page: "NO_PREFERENCE",
+        user_action: "PAY_NOW",
+        return_url: `localhost:${process.env.PORT}/capture-order`,
+        cancel_url: `localhost:${process.env.PORT}/cancel-payment`,
+      },
+    };
 
-    const response = await axios.post(`${process.env.URL}/v2/checkout/orders`, order, {
+  // format the body
+  const params = new URLSearchParams();
+  try{
+
+    params.append("grant_type", "client_credentials");
+    
+    // Get access_token from paypal
+    const { data: {access_token} } = await axios.post(
+      "https://api-m.sandbox.paypal.com/v1/oauth2/token",
+      params,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
         auth: {
-            username: process.env.CLIENTID,
-            password: process.env.SECRET
+          username: process.env.CLIENTID,
+          password: process.env.SECRET,
+        },
+      }
+    );
+    console.log(access_token)
+  
+    const response = await axios.post(`${process.env.URL}/v2/checkout/orders`, order, {
+      headers: {
+          Authorization: `Bearer ${access_token}`
         }
     });
-    const { data } = response;
     
-    res.send(data);
+    res.json(response.data);
+  } catch(err) {
+    res.status(500).send('Something goes wrong')
+  }
 }
 
 const captureOrder = (req, res) => {
