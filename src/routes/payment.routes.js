@@ -6,10 +6,6 @@ const { createOrder,
 
 const router = Router();
 
-router.get('/', (req, res) => {
-    res.send('Server runing');
-});
-
 router.post('/create-order', createOrder);
 
 router.get('/capture-order', captureOrder);

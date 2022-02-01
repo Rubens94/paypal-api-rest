@@ -59,23 +59,29 @@ const captureOrder = async(req, res) => {
 
   const { token } = req.query;
 
-  const response = await axios.post(
-    `${process.env.URL}/v2/checkout/orders/${token}/capture`,
-    {},
-    {
-      auth: {
-        username: process.env.CLIENTID,
-          password: process.env.SECRET,
-      },
-    }
-  );
+  try {
 
-  console.log(response.data);
-  res.send('Captured order');
+    const response = await axios.post(
+      `${process.env.URL}/v2/checkout/orders/${token}/capture`,
+      {},
+      {
+        auth: {
+          username: process.env.CLIENTID,
+            password: process.env.SECRET,
+        },
+      }
+    );
+    
+    res.json(response.data);
+  } catch(err){
+    console.log(error.message);
+    return res.status(500).json({ message: "Internal Server error" });
+  }
+
 }
 
 const cancelOrder = (req, res) => {
-  res.send('Canceled order');
+  res.json('Order canceled');
 }
 module.exports = {
     createOrder,

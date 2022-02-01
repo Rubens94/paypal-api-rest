@@ -15,6 +15,7 @@ app.use( cors() );
 // Read body
 app.use( express.json() );
 
+// Routes
 app.use(paymentRoutes);
 
 app.listen(process.env.PORT);
