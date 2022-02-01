@@ -11,7 +11,7 @@ const createOrder = async(req, res) => {
             value,
           },
           description
-        },
+        }
       ],
       application_context: {
         brand_name: "mycompany.com",
